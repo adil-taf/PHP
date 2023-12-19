@@ -13,6 +13,13 @@ class HomeController
         return View::make('index', ['foo' => 'bar']);
     }
 
+    public function download()
+    {
+        header('Content-Type: application/pdf');
+        header('Content-Disposotion: attachment; filename="myfile.pdf"');
+        readfile(STORAGE_PATH . '/file.pdf');
+    }
+
     public function upload()
     {
         $filePath = STORAGE_PATH . '/' . $_FILES['receipt']['name'];
@@ -20,8 +27,8 @@ class HomeController
             $_FILES['receipt']['tmp_name'],
             $filePath
         );
-        echo"<pre>";
-        var_dump(pathinfo($filePath));
-        echo"</pre>";
+
+        header('Location: /');
+        exit;
     }
 }

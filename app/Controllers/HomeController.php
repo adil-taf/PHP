@@ -19,22 +19,44 @@ class HomeController
 
         $email = 'adil@taf.com';
         $name = 'Adil Taf';
-        $isActive = 1;
-        $createdAt = date('Y-m-d H:i:s', strtotime('07/11/2023 9:00PM'));
+        $amount = 25;
+        try {
+            $db->beginTransaction();
+            $newUserStmt = $db->prepare(
+                'INSERT INTO users (email, full_name, is_active, created_at)
+                VALUES (?, ?, 1, NOW())'
+            );
 
-        $query = 'INSERT INTO users (email, full_name, is_active, created_at)
-                    VALUES (?, ?, ?, ?)';
+            $newInvoiceStmt = $db->prepare(
+                'INSERT INTO invoices (amount, user_id)
+                VALUES (?, ?)'
+            );
 
-        $stmt = $db->prepare($query);
+            $newUserStmt->execute([$email,$name]);
 
-        $stmt->execute([$email, $name, $isActive, $createdAt]);
+            $userId = (int)$db->lastInsertId();
 
-        $id = (int) $db->lastInsertId();
+            $newInvoiceStmt->execute([$amount,$userId]);
 
-        $user = $db->query('SELECT * FROM users WHERE id = ' . $id);
+            $db->commit();
+        } catch (\Throwable $e) {
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            throw $e;
+        }
+
+        $fetchStmt = $db->prepare(
+            'SELECT invoices.id AS invoice_id, amount, user_id, full_name
+            FROM invoices
+            INNER JOIN users ON user_id = users.id
+            WHERE email = ?'
+        );
+
+        $fetchStmt->execute([$email]);
 
         echo "<pre>";
-        var_dump($user);
+        var_dump($fetchStmt->fetch(PDO::FETCH_ASSOC));
         echo"</pre>";
 
         return View::make('index', ['foo' => 'bar']);

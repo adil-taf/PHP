@@ -8,22 +8,14 @@ use App\Exception\RouteNotFoundException;
 
 class App
 {
-    private static \PDO $db;
+    private static DB $db;
 
     public function __construct(protected Router $router, protected array $request, protected array $config)
     {
-        try {
-            static::$db = new \PDO(
-                $config['driver'] . ':host=' . $config['host'] . ';dbname=' . $config['database'],
-                $config['user'],
-                $config['pass']
-            );
-        } catch (\PDOException $e) {
-            throw new \PDOException($e->getMessage(), (int) $e->getCode());
-        }
+        static::$db = new DB($config);
     }
 
-    public static function db(): \PDO
+    public static function db(): DB
     {
         return static::$db;
     }

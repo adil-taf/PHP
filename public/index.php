@@ -21,8 +21,8 @@ $router = new Router();
 
 $router
     ->get('/', [HomeController::class, 'index'])
-    ->get('/download', [HomeController::class, 'download'])
-    ->post('/upload', [HomeController::class, 'upload'])
+    ->get('/download', [InvoiceController::class, 'download'])
+    ->post('/upload', [InvoiceController::class, 'upload'])
     ->get('/invoices', [InvoiceController::class, 'index'])
     ->get('/invoices/create', [InvoiceController::class, 'create'])
     ->post('/invoices/create', [InvoiceController::class, 'store']);

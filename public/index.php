@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\App;
 use App\Controllers\HomeController;
 use App\Controllers\InvoiceController;
+use App\Container;
 use App\Router;
 use App\Config;
 
@@ -16,8 +17,8 @@ $dotenv->load();
 define('STORAGE_PATH', __DIR__ . '/../storage');
 define('VIEW_PATH', __DIR__ . '/../views');
 
-
-$router = new Router();
+$container = new Container();
+$router = new Router($container);
 
 $router
     ->get('/', [HomeController::class, 'index'])

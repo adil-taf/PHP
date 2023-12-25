@@ -17,7 +17,11 @@ class Container implements ContainerInterface
         if ($this->has($id)) {
             $entry = $this->entries[$id];
 
-            return $entry($this);
+            if (is_callable($entry)) {
+                return $entry($this);
+            }
+
+            $id = $entry;
         }
 
         return $this->resolve($id);
@@ -28,7 +32,7 @@ class Container implements ContainerInterface
         return isset($this->entries[$id]);
     }
 
-    public function set(string $id, callable $concrete): void
+    public function set(string $id, callable|string $concrete): void
     {
         $this->entries[$id] = $concrete;
     }
@@ -36,10 +40,14 @@ class Container implements ContainerInterface
     public function resolve(string $id)
     {
         // 1. Inspect the class that we are trying to get from the container
-        $reflectionClass = new \ReflectionClass($id);
+        try {
+            $reflectionClass = new \ReflectionClass($id);
+        } catch (\ReflectionException $e) {
+            throw new NotFoundException($e->getMessage(), $e->getCode(), $e);
+        }
 
         if (!$reflectionClass->isInstantiable()) {
-            //ex: abstract class or interface
+            //Abstract class or interface for example...
             throw new ContainerException('Class "' . $id . '" is not Instantiable');
         }
 
@@ -59,19 +67,19 @@ class Container implements ContainerInterface
 
         // 4. If the constructor parameter is a class then try to resolve that class using the container
         $dependencies = array_map(
-            function (\ReflectionParameter $param) {
+            function (\ReflectionParameter $param) use ($id) {
                 $name = $param->getName();
                 $type = $param->getType();
 
                 if (! $type) {
                     throw new ContainerExcpetion(
-                        'Failed to resolve class "' . $id . '" because parm "' . $name . '" is missing a type hint'
+                        'Failed to resolve class "' . $id . '" because param "' . $name . '" is missing a type hint'
                     );
                 }
 
                 if ($type instanceof \ReflectionUnionType) {
                     throw new ContainerException(
-                        'Failed to resolve class "' . $id . '" because of union type for parm "' . $name . '"'
+                        'Failed to resolve class "' . $id . '" because of union type for param "' . $name . '"'
                     );
                 }
 
@@ -80,7 +88,7 @@ class Container implements ContainerInterface
                 }
 
                 throw new ContainerException(
-                    'Failed to resolve class "' . $id . '" because invalid parm "' . $name . '"'
+                    'Failed to resolve class "' . $id . '" because invalid param "' . $name . '"'
                 );
             },
             $parameters

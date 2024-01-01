@@ -4,29 +4,28 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Attributes\Get;
+use App\Attributes\Post;
 use App\View;
 use App\Models\User;
 use App\Models\Invoice;
 use App\Models\SignUp;
 
-/*
-        use App\App;
-        use App\View;
-        use PDO;*/
-
-
 class InvoiceController
 {
+    #[Get('/invoices')]
     public function index(): View
     {
         return View::make('invoices/index');
     }
 
+    #[Get('/invoices/create')]
     public function create(): View
     {
         return View::make('invoices/create');
     }
 
+    #[Post('/invoices/create')]
     public function store()
     {
         $email = $_POST['email'];
@@ -48,7 +47,7 @@ class InvoiceController
         return View::make('invoices/create', ['invoice' => $invoiceModel->find($invoiceId)]);
     }
 
-
+    #[Get('/download')]
     public function download()
     {
         header('Content-Type: application/pdf');
@@ -56,6 +55,7 @@ class InvoiceController
         readfile(STORAGE_PATH . '/file.pdf');
     }
 
+    #[Post('/upload')]
     public function upload()
     {
         $filePath = STORAGE_PATH . '/' . $_FILES['receipt']['name'];

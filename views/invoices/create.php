@@ -21,6 +21,13 @@
           <input name="name" type="text">
           <label for="amount">Amount:</label>
           <input name="amount" type="text">
+          <label for="invoice_number">Invoice Number:</label>
+          <input name="invoice_number" type="text">
+          <select name="status">
+          <?php foreach (\App\Enums\InvoiceStatus::cases() as $case) : ?>
+            <option value="<?= $case->value ?>"><?= $case->toString() ?></option>
+          <?php endforeach ?>
+          </select>
           <input type="submit">
       </form>
     <?php endif?>

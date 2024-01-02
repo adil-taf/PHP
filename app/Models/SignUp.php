@@ -18,7 +18,12 @@ class SignUp extends Model
             $this->db->beginTransaction();
 
             $userId = $this->userModel->create($userInfo['email'], $userInfo['name']);
-            $invoiceId = $this->invoiceModel->create($invoiceInfo['amount'], $userId);
+            $invoiceId = $this->invoiceModel->create(
+                $invoiceInfo['invoiceNumber'],
+                $invoiceInfo['amount'],
+                $userId,
+                $invoiceInfo['status']
+            );
 
             $this->db->commit();
         } catch (\Throwable $e) {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Enums\InvoiceStatus;
 use App\Attributes\Get;
 use App\Attributes\Post;
 use App\View;
@@ -16,7 +17,9 @@ class InvoiceController
     #[Get('/invoices')]
     public function index(): View
     {
-        return View::make('invoices/index');
+        $invoices = (new Invoice())->all(InvoiceStatus::Paid);
+
+        return View::make('invoices/index', ['invoices' => $invoices]);
     }
 
     #[Get('/invoices/create')]
@@ -31,17 +34,14 @@ class InvoiceController
         $email = $_POST['email'];
         $name = $_POST['name'];
         $amount = (float) $_POST['amount'];
-
-        $email = 'adil.tafs@gmail.com';
-        $name = 'adil tafs';
-        $amount = 150;
-
+        $invoiceNumber = (int) $_POST['invoice_number'];
+        $status = InvoiceStatus::from((int) $_POST['status']);
 
         $userModel = new User();
         $invoiceModel = new Invoice();
         $invoiceId = (new SignUp($userModel, $invoiceModel))->register(
             ['email' => $email,'name' => $name],
-            ['amount' => $amount]
+            ['invoiceNumber' => $invoiceNumber, 'amount' => $amount, 'status' => $status]
         );
 
         return View::make('invoices/create', ['invoice' => $invoiceModel->find($invoiceId)]);

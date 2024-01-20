@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\App;
 use App\Controllers\HomeController;
 use App\Controllers\InvoiceController;
+use App\Controllers\UserController;
 use App\Container;
 use App\Router;
 use App\Config;
@@ -23,7 +24,8 @@ $router = new Router($container);
 $router->registerRoutesFromControllerAttributes(
     [
         HomeController::class,
-        InvoiceController::class
+        InvoiceController::class,
+        UserController::class,
     ]
 );
 

@@ -28,4 +28,28 @@ class Email extends Model
 
         $stmt->execute([$subject, EmailStatus::Queue->value, $html, $text, json_encode($meta)]);
     }
+
+    public function getEmailsByStatus(EmailStatus $status): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT *
+             FROM emails
+             WHERE status = ?'
+        );
+
+        $stmt->execute([$status->value]);
+
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public function markEmailSent(int $id): void
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE emails
+             SET status = ?, sent_at = NOW()
+             WHERE id = ?'
+        );
+
+        $stmt->execute([EmailStatus::Sent->value, $id]);
+    }
 }

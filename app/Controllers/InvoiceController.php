@@ -11,15 +11,28 @@ use App\View;
 use App\Models\User;
 use App\Models\Invoice;
 use App\Models\SignUp;
+use App\Services\InvoiceService;
 
 class InvoiceController
 {
+    public function __construct(private InvoiceService $invoiceService)
+    {
+    }
+
     #[Get('/invoices')]
     public function index(): View
     {
         $invoices = (new Invoice())->all(InvoiceStatus::Paid);
 
         return View::make('invoices/index', ['invoices' => $invoices]);
+    }
+
+    #[Get('/invoices/process')]
+    public function process(): View
+    {
+        $this->invoiceService->process([], 25);
+
+        return View::make('invoices/process');
     }
 
     #[Get('/invoices/create')]

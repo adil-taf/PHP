@@ -6,43 +6,46 @@ namespace App\Models;
 
 use App\Enums\InvoiceStatus;
 use App\Model;
-use PDO;
 
 class Invoice extends Model
 {
     public function create(int $invoiceNumber, float $amount, int $userId, InvoiceStatus $status): int
     {
+        $this->db->insert('invoices', [
+            'invoice_number' => $invoiceNumber,
+            'amount' => $amount,
+            'user_id' => $userId,
+            'status' => $status->value
+        ]);
+
+        return (int) $this->db->lastInsertId();
+
+        /***
         $stmt = $this->db->prepare(
             'INSERT INTO invoices (invoice_number, amount, user_id, status)
              VALUES (?, ?, ?, ?)'
-        );
-        $stmt->execute([$invoiceNumber,  $amount,  $userId,  $status->value]);
-        return (int) $this->db->lastInsertId();
+        );*/
+        //$stmt->execute([$invoiceNumber,  $amount,  $userId,  $status->value]);
+        //return (int) $this->db->lastInsertId();
     }
 
     public function find(int $invoiceId): array
     {
-        $stmt = $this->db->prepare(
-            'SELECT invoices.id, amount, full_name
-             FROM invoices
-             LEFT JOIN users ON users.id=user_id
-             WHERE invoices.id = ?'
-        );
-        $stmt->execute([$invoiceId]);
-        $invoice = $stmt->fetch();
-        return $invoice ? $invoice : [];
+        return $this->db->createQueryBuilder()
+            ->select('i.id', 'amount', 'full_name')
+            ->from('invoices', 'i')
+            ->leftJoin('i', 'users', 'u', 'u.id = user_id')
+            ->where('i.id = ?')
+            ->setParameter(0, $invoiceId)
+            ->fetchAssociative();
     }
 
     public function all(InvoiceStatus $status): array
     {
-        $stmt = $this->db->prepare(
-            'SELECT id, invoice_number, amount, status
-             FROM invoices
-             WHERE status = ?'
-        );
-
-        $stmt->execute([$status->value]);
-
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
+        return $this->db->createQueryBuilder()->select('id', 'invoice_number', 'amount', 'status')
+            ->from('invoices')
+            ->where('status = ?')
+            ->setParameter(0, $status->value)
+            ->fetchAllAssociative();
     }
 }

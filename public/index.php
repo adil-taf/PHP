@@ -8,7 +8,6 @@ use App\Controllers\InvoiceController;
 use App\Controllers\UserController;
 use App\Container;
 use App\Router;
-use App\Config;
 
 require __DIR__ . '/../vendor/autoload.php';
 

@@ -15,6 +15,12 @@ class Invoice extends Model
         string $invoiceNumber,
         InvoiceStatus $invoiceStatus
     ) {
+        $entityManager = \Doctrine\ORM\EntityManager::create(
+            $this->db->getParams(),
+            \Doctrine\ORM\Tools\Setup::createAttributeMetadataConfiguration([__DIR__ . '/../Entity'])
+        );
+
+        //Create Ivoice and InvoiceItem objects and associate them with each other
         $invoice = (new \App\Entity\Invoice())
             ->setAmount($amount)
             ->setInvoiceNumber($invoiceNumber)
@@ -28,6 +34,12 @@ class Invoice extends Model
 
             $invoice->addItem($item);
         }
+
+        $entityManager->persist($invoice);
+        $entityManager->flush();
+
+        //$entityManager->remove($invoice);
+        //$entityManager->flush();
     }
 
     public function create(int $invoiceNumber, float $amount, int $userId, InvoiceStatus $status): int

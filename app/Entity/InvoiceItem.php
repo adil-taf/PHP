@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\Table;
+use Doctrine\ORM\Mapping\ManyToOne;
 
 #[Entity]
 #[Table('invoice_items')]
@@ -30,6 +31,9 @@ class InvoiceItem
 
     #[Column(name: 'unit_price', type: Types::DECIMAL, precision: 10, scale: 4)]
     private float $unitPrice;
+
+    #[ManyToOne(inversedBy: 'items')]
+    private Invoice $invoice;
 
     public function getId(): int
     {

@@ -9,6 +9,27 @@ use App\Model;
 
 class Invoice extends Model
 {
+    public function createInvoiceWithItems(
+        array $items,
+        int $amount,
+        string $invoiceNumber,
+        InvoiceStatus $invoiceStatus
+    ) {
+        $invoice = (new \App\Entity\Invoice())
+            ->setAmount($amount)
+            ->setInvoiceNumber($invoiceNumber)
+            ->setStatus($invoiceStatus)
+            ->setCreatedAt(new \DateTime());
+        foreach ($items as [$description, $quantity, $unitPrice]) {
+            $item = (new \App\Entity\InvoiceItem())
+              ->setDescription($description)
+              ->setQuantity($quantity)
+              ->setUnitPrice($unitPrice);
+
+            $invoice->addItem($item);
+        }
+    }
+
     public function create(int $invoiceNumber, float $amount, int $userId, InvoiceStatus $status): int
     {
         $this->db->insert('invoices', [
@@ -19,14 +40,6 @@ class Invoice extends Model
         ]);
 
         return (int) $this->db->lastInsertId();
-
-        /***
-        $stmt = $this->db->prepare(
-            'INSERT INTO invoices (invoice_number, amount, user_id, status)
-             VALUES (?, ?, ?, ?)'
-        );*/
-        //$stmt->execute([$invoiceNumber,  $amount,  $userId,  $status->value]);
-        //return (int) $this->db->lastInsertId();
     }
 
     public function find(int $invoiceId): array

@@ -80,4 +80,11 @@ class InvoiceItem
 
         return $this;
     }
+
+    public function setInvoice(Invoice $invoice): InvoiceItem
+    {
+        $this->invoice = $invoice;
+
+        return $this;
+    }
 }

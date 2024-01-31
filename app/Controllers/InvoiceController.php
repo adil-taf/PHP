@@ -41,6 +41,19 @@ class InvoiceController
         return View::make('invoices/create');
     }
 
+    #[Get('/invoices/createInvoiceItems')]
+    public function createInvoiceItems(): View
+    {
+        $items = [['Item 1', 1, 15],['Item 2', 2, 7.5],['Item 3', 4, 3.75]];
+
+        $amount = 45;
+        $invoiceNumber = '1';
+        $invoiceStatus = InvoiceStatus::Pending;
+
+        $invoiceModel = new Invoice();
+        $invoiceModel->createInvoiceWithItems($items, $amount, $invoiceNumber, $invoiceStatus);
+    }
+
     #[Post('/invoices/create')]
     public function store()
     {

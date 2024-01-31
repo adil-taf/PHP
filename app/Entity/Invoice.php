@@ -109,4 +109,13 @@ class Invoice
 
         return $this;
     }
+
+    public function addItem(InvoiceItem $item): Invoice
+    {
+        $item->setInvoice($this);
+
+        $this->items->add($item);
+
+        return $this;
+    }
 }

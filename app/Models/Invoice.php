@@ -13,14 +13,15 @@ class Invoice extends Model
         array $items,
         int $amount,
         string $invoiceNumber,
-        InvoiceStatus $invoiceStatus
+        InvoiceStatus $invoiceStatus,
+        int $userId
     ) {
         //Create Ivoice and InvoiceItem objects and associate them with each other
         $invoice = (new \App\Entity\Invoice())
             ->setAmount($amount)
             ->setInvoiceNumber($invoiceNumber)
             ->setStatus($invoiceStatus)
-            ->setCreatedAt(new \DateTime());
+            ->setUserId($userId);
         foreach ($items as [$description, $quantity, $unitPrice]) {
             $item = (new \App\Entity\InvoiceItem())
               ->setDescription($description)

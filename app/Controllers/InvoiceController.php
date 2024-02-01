@@ -49,9 +49,10 @@ class InvoiceController
         $amount = 45;
         $invoiceNumber = '1';
         $invoiceStatus = InvoiceStatus::Pending;
+        $userId = 2;
 
         $invoiceModel = new Invoice();
-        $invoiceModel->createInvoiceWithItems($items, $amount, $invoiceNumber, $invoiceStatus);
+        $invoiceModel->createInvoiceWithItems($items, $amount, $invoiceNumber, $invoiceStatus, $userId);
     }
 
     #[Post('/invoices/create')]

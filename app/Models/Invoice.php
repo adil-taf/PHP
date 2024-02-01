@@ -15,11 +15,6 @@ class Invoice extends Model
         string $invoiceNumber,
         InvoiceStatus $invoiceStatus
     ) {
-        $entityManager = \Doctrine\ORM\EntityManager::create(
-            $this->db->getParams(),
-            \Doctrine\ORM\Tools\Setup::createAttributeMetadataConfiguration([__DIR__ . '/../Entity'])
-        );
-
         //Create Ivoice and InvoiceItem objects and associate them with each other
         $invoice = (new \App\Entity\Invoice())
             ->setAmount($amount)
@@ -35,11 +30,11 @@ class Invoice extends Model
             $invoice->addItem($item);
         }
 
-        $entityManager->persist($invoice);
-        $entityManager->flush();
+        $this->entityManager->persist($invoice);
+        $this->entityManager->flush();
 
-        //$entityManager->remove($invoice);
-        //$entityManager->flush();
+        //$this->$entityManager->remove($invoice);
+        //$this->$entityManager->flush();
     }
 
     public function create(int $invoiceNumber, float $amount, int $userId, InvoiceStatus $status): int
@@ -67,10 +62,15 @@ class Invoice extends Model
 
     public function all(InvoiceStatus $status): array
     {
-        return $this->db->createQueryBuilder()->select('id', 'invoice_number', 'amount', 'status')
-            ->from('invoices')
-            ->where('status = ?')
-            ->setParameter(0, $status->value)
-            ->fetchAllAssociative();
+        $queryBuilder = $this->entityManager->createQueryBuilder();
+        $query = $queryBuilder
+          ->select('i')
+          ->from(\App\Entity\Invoice::class, 'i')
+          ->where('i.status = :status')
+          ->setParameter('status', $status->value)
+          ->getQuery();
+
+          $invoices = $query->getResult();
+          return $invoices;
     }
 }

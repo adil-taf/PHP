@@ -5,7 +5,8 @@
     "symfony/mailer": "^7.0",
     "doctrine/dbal": "^3.8",
     "doctrine/orm": "^2.17",
-    "symfony/cache": "^7.0"
+    "symfony/cache": "^7.0",
+    "doctrine/migrations": "^3.7"
   },
   "autoload": {
     "psr-4": {

@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App;
 
 use App\Exception\RouteNotFoundException;
-//use App\Services\PaymentGatewayServiceInterface;
-//use App\Services\PaymentGatewayService;
+use App\Services\PaymentGatewayServiceInterface;
+use App\Services\PaymentGatewayService;
 use Dotenv\Dotenv;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Events\Dispatcher;
-
-//use Symfony\Component\Mailer\MailerInterface;
+use Illuminate\Container\Container;
+use Symfony\Component\Mailer\MailerInterface;
 
 class App
 {
@@ -44,8 +44,8 @@ class App
 
         $this->initDb($this->config->db);
 
-        //$this->container->set(PaymentGatewayServiceInterface::class, PaymentGatewayService::class);
-        //$this->container->set(MailerInterface::class, fn() => new CustomMailer($this->config->mailer['dsn']));
+        $this->container->bind(PaymentGatewayServiceInterface::class, PaymentGatewayService::class);
+        $this->container->bind(MailerInterface::class, fn() => new CustomMailer($this->config->mailer['dsn']));
 
         return $this;
     }

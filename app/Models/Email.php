@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\EmailStatus;
-use App\Model;
-use PDO;
+use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Symfony\Component\Mime\Address;
 
 class Email extends Model
 {
+    const UPDATED_AT = null;
+
     public function queue(
         Address $to,
         Address $from,
@@ -18,38 +21,34 @@ class Email extends Model
         string $html,
         ?string $text = null
     ): void {
-        $stmt = $this->db->prepare(
-            'INSERT INTO emails (subject, status, html_body, text_body, meta, created_at)
-             VALUES (?, ?, ?, ?, ?, NOW())'
-        );
-
+        $this->subject = $subject;
+        $this->status         = EmailStatus::Queue->value;
+        $this->html_body         = $html;
+        $this->text_body = $text;
         $meta['to']   = $to->toString();
         $meta['from'] = $from->toString();
+        $this->meta = json_encode($meta);
+        $this->created_at = new Carbon();
 
-        $stmt->execute([$subject, EmailStatus::Queue->value, $html, $text, json_encode($meta)]);
+        $this->save();
     }
 
-    public function getEmailsByStatus(EmailStatus $status): array
+    protected static function booted()
     {
-        $stmt = $this->db->prepare(
-            'SELECT *
-             FROM emails
-             WHERE status = ?'
-        );
+        static::creating(function (Email $email) {
+            if ($email->isClean('sent_at')) {
+                $email->sent_at = '1970-01-01';
+            }
+        });
+    }
 
-        $stmt->execute([$status->value]);
-
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    public function getEmailsByStatus(EmailStatus $status): Collection
+    {
+        return Email::query()->where('status', $status)->get();//->toArray();
     }
 
     public function markEmailSent(int $id): void
     {
-        $stmt = $this->db->prepare(
-            'UPDATE emails
-             SET status = ?, sent_at = NOW()
-             WHERE id = ?'
-        );
-
-        $stmt->execute([EmailStatus::Sent->value, $id]);
+        Email::query()->where('id', $id)->update(['status' => EmailStatus::Sent->value,'sent_at' => new Carbon()]);
     }
 }

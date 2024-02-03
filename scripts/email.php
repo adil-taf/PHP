@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\App;
-use App\Container;
+use Illuminate\Container\Container;
 use App\Services\EmailService;
 
 require_once __DIR__ . '/../vendor/autoload.php';

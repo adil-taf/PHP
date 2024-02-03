@@ -6,7 +6,7 @@ use App\App;
 use App\Controllers\HomeController;
 use App\Controllers\InvoiceController;
 use App\Controllers\UserController;
-use App\Container;
+use Illuminate\Container\Container;
 use App\Router;
 use App\Config;
 

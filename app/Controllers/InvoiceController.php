@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-use Carbon\Carbon;
 use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
@@ -29,7 +28,6 @@ class InvoiceController
         $invoice->amount         = 20;
         $invoice->user_id = 2;
         $invoice->status         = InvoiceStatus::Paid;
-        $invoice->created_at       = (new Carbon())->addDay();
 
         $invoice->save();
 
@@ -45,7 +43,6 @@ class InvoiceController
         $invoice->amount         = 20;
         $invoice->user_id = 2;
         $invoice->status         = InvoiceStatus::Pending;
-        $invoice->created_at       = (new Carbon())->addDay();
 
         $invoice->save();
 

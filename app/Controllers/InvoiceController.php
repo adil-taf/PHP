@@ -4,80 +4,62 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use Carbon\Carbon;
 use App\Enums\InvoiceStatus;
-use App\Attributes\Get;
-use App\Attributes\Post;
-use App\View;
-use App\Models\User;
 use App\Models\Invoice;
-use App\Models\SignUp;
-use App\Services\InvoiceService;
+use App\Models\InvoiceItem;
+use App\Attributes\Get;
+use App\View;
 
 class InvoiceController
 {
-    public function __construct(private InvoiceService $invoiceService)
-    {
-    }
-
     #[Get('/invoices')]
     public function index(): View
     {
-        $invoices = (new Invoice())->all(InvoiceStatus::Paid);
-
+        $invoices = Invoice::query()->where('status', InvoiceStatus::Paid)->get();
         return View::make('invoices/index', ['invoices' => $invoices]);
     }
 
-    #[Get('/invoices/process')]
-    public function process(): View
+    #[Get('/invoices/new')]
+    public function create()
     {
-        $this->invoiceService->process([], 25);
+        $invoice = new Invoice();
 
-        return View::make('invoices/process');
+        $invoice->invoice_number = 5;
+        $invoice->amount         = 20;
+        $invoice->user_id = 2;
+        $invoice->status         = InvoiceStatus::Paid;
+        $invoice->created_at       = (new Carbon())->addDay();
+
+        $invoice->save();
+
+        echo $invoice->id . ', ' . $invoice->created_at->format('m/d/Y');
     }
 
-    #[Get('/invoices/create')]
-    public function create(): View
+    #[Get('/invoices/createInvoiceItems')]
+    public function invoiceWithItems(): void
     {
-        return View::make('invoices/create');
-    }
+        $invoice = new Invoice();
 
-    #[Post('/invoices/create')]
-    public function store()
-    {
-        $email = $_POST['email'];
-        $name = $_POST['name'];
-        $amount = (float) $_POST['amount'];
-        $invoiceNumber = (int) $_POST['invoice_number'];
-        $status = InvoiceStatus::from((int) $_POST['status']);
+        $invoice->invoice_number = 5;
+        $invoice->amount         = 20;
+        $invoice->user_id = 2;
+        $invoice->status         = InvoiceStatus::Pending;
+        $invoice->created_at       = (new Carbon())->addDay();
 
-        $userModel = new User();
-        $invoiceModel = new Invoice();
-        $invoiceId = (new SignUp($userModel, $invoiceModel))->register(
-            ['email' => $email,'name' => $name],
-            ['invoiceNumber' => $invoiceNumber, 'amount' => $amount, 'status' => $status]
-        );
+        $invoice->save();
 
-        return View::make('invoices/create', ['invoice' => $invoiceModel->find($invoiceId)]);
-    }
+        $items = [['Item 1', 1, 35], ['Item 2', 2, 5], ['Item 3', 4, 3.75],];
+        foreach ($items as [$description, $quantity, $unitPrice]) {
+            $item = new InvoiceItem();
 
-    #[Get('/download')]
-    public function download()
-    {
-        header('Content-Type: application/pdf');
-        header('Content-Disposotion: attachment; filename="myfile.pdf"');
-        readfile(STORAGE_PATH . '/file.pdf');
-    }
+            $item->description = $description;
+            $item->quantity = $quantity;
+            $item->unit_price = $unitPrice;
 
-    #[Post('/upload')]
-    public function upload()
-    {
-        $filePath = STORAGE_PATH . '/' . $_FILES['receipt']['name'];
-        move_uploaded_file(
-            $_FILES['receipt']['tmp_name'],
-            $filePath
-        );
+            $item->invoice()->associate($invoice);
 
-        header('Location: /');
-        exit;
+            $item->save();
+        }
     }
 }

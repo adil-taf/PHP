@@ -39,8 +39,8 @@
             <tr>
                 <td><?= $invoice->invoice_number ?></td>
                 <td>$<?= number_format($invoice->amount, 2) ?></td>
-                <td class="<?= \App\Enums\InvoiceStatus::tryFrom($invoice->status)->color()->getClass() ?>">
-                    <?= \App\Enums\InvoiceStatus::tryFrom($invoice->status)->toString() ?>
+                <td class="<?= $invoice->status->color()->getClass() ?>">
+                    <?= $invoice->status->toString() ?>
                 </td>
             </tr>
         <?php endforeach ?>

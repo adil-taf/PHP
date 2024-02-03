@@ -10,12 +10,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Invoice extends Model
 {
+    const UPDATED_AT = null;
     protected $table = 'invoices';
     protected $primaryKey = 'id';
     protected $casts = [
         'created_at' => 'datetime',
         'status'     => InvoiceStatus::class,
     ];
+
+
 
     public function items(): HasMany
     {

@@ -17,35 +17,41 @@ class Email extends Model
         string $html,
         ?string $text = null
     ): void {
-        $stmt = $this->db->prepare(
-            'INSERT INTO emails (subject, status, html_body, text_body, meta, created_at)
-             VALUES (?, ?, ?, ?, ?, NOW())'
-        );
         $meta['to']   = $to->toString();
         $meta['from'] = $from->toString();
 
-        $stmt->executeStatement([$subject, EmailStatus::Queue->value, $html, $text, json_encode($meta)]);
+        $email = (new \App\Entity\Email())
+            ->setSubject($subject)
+            ->setStatus(EmailStatus::Queue)
+            ->setTextBody($text)
+            ->setHtmlBody($html)
+            ->setMeta($meta);
+
+        $this->entityManager->persist($email);
+        $this->entityManager->flush();
     }
 
     public function getEmailsByStatus(EmailStatus $status): array
     {
-        $stmt = $this->db->prepare(
-            'SELECT *
-             FROM emails
-             WHERE status = ?'
-        );
+        $queryBuilder = $this->entityManager->createQueryBuilder();
+        $query = $queryBuilder
+          ->select('e')
+          ->from(\App\Entity\Email::class, 'e')
+          ->where('e.status = :status')
+          ->setParameter('status', $status->value)
+          ->getQuery();
 
-        return $stmt->executeQuery([$status->value])->fetchAllAssociative();
+          $emails = $query->getResult();
+          return $emails;
     }
 
     public function markEmailSent(int $id): void
     {
-        $stmt = $this->db->prepare(
-            'UPDATE emails
-             SET status = ?, sent_at = NOW()
-             WHERE id = ?'
-        );
+        $email = $this->entityManager->getReference(\App\Entity\Email::class, $id);
+        $email->setStatus(EmailStatus::Sent);
+        $email->setSentAt(new \DateTime());
 
-        $stmt->executeStatement([EmailStatus::Sent->value, $id]);
+        $email = $this->entityManager->merge($email);
+        $this->entityManager->flush();
     }
 }

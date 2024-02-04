@@ -17,6 +17,27 @@ class Email extends Model
         string $html,
         ?string $text = null
     ): void {
+        $meta['to']   = $to->toString();
+        $meta['from'] = $from->toString();
+        $this->db->createQueryBuilder()
+        ->insert('emails')
+        ->values([
+            'subject' => '?',
+            'status' => '?',
+            'html_body' => '?',
+            'text_body' => '?',
+            'meta' => '?',
+            'created_at' => 'CURRENT_TIMESTAMP',
+            'sent_at' => '?'
+        ])
+        ->setParameter(0, $subject)
+        ->setParameter(1, EmailStatus::Queue->value)
+        ->setParameter(2, $html)
+        ->setParameter(3, $text)
+        ->setParameter(4, json_encode($meta))
+        ->setParameter(5, '1970-01-01')
+        ->execute();
+        /*
         $stmt = $this->db->prepare(
             'INSERT INTO emails (subject, status, html_body, text_body, meta, created_at)
              VALUES (?, ?, ?, ?, ?, NOW())'
@@ -25,10 +46,18 @@ class Email extends Model
         $meta['from'] = $from->toString();
 
         $stmt->executeStatement([$subject, EmailStatus::Queue->value, $html, $text, json_encode($meta)]);
+        */
     }
 
     public function getEmailsByStatus(EmailStatus $status): array
     {
+        return $this->db->createQueryBuilder()
+            ->select('*')
+            ->from('emails')
+            ->where('status = ?')
+            ->setParameter(0, $status->value)
+            ->fetchAllAssociative();
+        /*
         $stmt = $this->db->prepare(
             'SELECT *
              FROM emails
@@ -36,10 +65,21 @@ class Email extends Model
         );
 
         return $stmt->executeQuery([$status->value])->fetchAllAssociative();
+        */
     }
 
     public function markEmailSent(int $id): void
     {
+        $this->db->createQueryBuilder()
+           ->update('emails')
+           ->set('status', '?')
+           ->set('sent_at', 'CURRENT_TIMESTAMP')
+           ->where('id = ?')
+           ->setParameter(0, EmailStatus::Sent->value)
+           ->setParameter(1, $id)
+           ->execute();
+
+        /*
         $stmt = $this->db->prepare(
             'UPDATE emails
              SET status = ?, sent_at = NOW()
@@ -47,5 +87,6 @@ class Email extends Model
         );
 
         $stmt->executeStatement([EmailStatus::Sent->value, $id]);
+        */
     }
 }

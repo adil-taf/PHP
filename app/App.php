@@ -9,6 +9,8 @@ use App\Services\PaymentGatewayServiceInterface;
 use Dotenv\Dotenv;
 use App\Services\PaymentGatewayService;
 use Symfony\Component\Mailer\MailerInterface;
+use App\Interfaces\EmailValidationInterface;
+use App\Services\AbstractApi\EmailValidationService;
 
 class App
 {
@@ -38,6 +40,10 @@ class App
 
         $this->container->set(PaymentGatewayServiceInterface::class, PaymentGatewayService::class);
         $this->container->set(MailerInterface::class, fn() => new CustomMailer($this->config->mailer['dsn']));
+        $this->container->set(
+            EmailValidationInterface::class,
+            fn() => new EmailValidationService($this->config->apiKeys['abstract_api_email_validation'])
+        );
 
         return $this;
     }

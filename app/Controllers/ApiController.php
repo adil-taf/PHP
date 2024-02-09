@@ -5,9 +5,24 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Attributes\Get;
+use App\Interfaces\EmailValidationInterface;
 
 class ApiController
 {
+    public function __construct(private EmailValidationInterface $emailValidationService)
+    {
+    }
+
+    #[Get('/emailValidation')]
+    public function index()
+    {
+        $email  = 'adil@gmail.com';
+        $result = $this->emailValidationService->verify($email);
+        echo '<pre>';
+        print_r($result);
+        echo '</pre>';
+    }
+
     #[Get('/curl')]
     public function curl()
     {

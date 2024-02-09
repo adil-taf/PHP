@@ -6,6 +6,7 @@ use App\App;
 use App\Controllers\HomeController;
 use App\Controllers\InvoiceController;
 use App\Controllers\UserController;
+use App\Controllers\ApiController;
 use App\Container;
 use App\Router;
 use App\Config;
@@ -23,6 +24,7 @@ $router->registerRoutesFromControllerAttributes(
         HomeController::class,
         InvoiceController::class,
         UserController::class,
+        ApiController::class,
     ]
 );
 

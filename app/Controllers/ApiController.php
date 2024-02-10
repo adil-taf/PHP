@@ -18,6 +18,12 @@ class ApiController
     {
         $email  = 'adil@gmail.com';
         $result = $this->emailValidationService->verify($email);
+
+        $score = $result->score;
+        $isDeliverable = $result->isDeliverable;
+
+        var_dump($score, $isDeliverable);
+
         echo '<pre>';
         print_r($result);
         echo '</pre>';

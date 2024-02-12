@@ -7,24 +7,24 @@ namespace App\Controllers;
 use App\Enums\InvoiceStatus;
 use App\Attributes\Get;
 use App\Attributes\Post;
-use App\View;
 use App\Models\User;
 use App\Models\Invoice;
 use App\Models\SignUp;
 use App\Services\InvoiceService;
+use Twig\Environment as Twig;
 
 class InvoiceController
 {
-    public function __construct(private InvoiceService $invoiceService)
+    public function __construct(private InvoiceService $invoiceService, private Twig $twig)
     {
     }
 
     #[Get('/invoices')]
-    public function index(): View
+    public function index(): string
     {
         $invoices = (new Invoice())->all(InvoiceStatus::Paid);
 
-        return View::make('invoices/index', ['invoices' => $invoices]);
+        return $this->twig->render('invoices/index.twig', ['invoices' => $invoices]);
     }
 
     #[Get('/invoices/process')]

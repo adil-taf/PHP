@@ -29,20 +29,25 @@
 <table>
     <thead>
         <tr>
-            <th>Invoice #</th>
+            <th>Invoice Number</th>
             <th>Amount</th>
             <th>Status</th>
+            <th>Created at</th>
         </tr>
     </thead>
     <tbody>
-        <?php foreach ($invoices as $invoice) : ?>
+        {% for invoice in invoices %}
             <tr>
-            <td><?= $invoice->getInvoiceNumber() ?></td>
-                <td>$<?= number_format($invoice->getAmount(), 2) ?></td>
-                <td class="<?= $invoice->getStatus()->color()->getClass() ?>">
-                    <?= $invoice->getStatus()->toString() ?>
+                <td>{{ invoice.getInvoiceNumber() }}</td> 
+                <td>{{ invoice.getAmount()|format_currency('USD') }}</td>
+                <td class="{{ invoice.status.color().getClass() }}">
+                    {{ invoice.getStatus().toString() }}
+                <td>
+                    {{ invoice.createdAt() is empty ? 'N/A' : invoice.createdAt()|date('m/d/Y') }}
                 </td>
             </tr>
-        <?php endforeach ?>
+        {% else %}
+            <tr><td colspan="4">No Invoices Found</td></tr>
+        {% endfor %}
     </tbody>
 </table>

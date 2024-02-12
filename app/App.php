@@ -11,6 +11,9 @@ use App\Services\PaymentGatewayService;
 use Symfony\Component\Mailer\MailerInterface;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
+use Twig\Extra\Intl\IntlExtension;
 
 class App
 {
@@ -49,8 +52,19 @@ class App
             Setup::createAttributeMetadataConfiguration([__DIR__ . '/Entity'])
         );
 
+        $twig = new Environment(
+            new FilesystemLoader(VIEW_PATH),
+            [
+                'cache' => STORAGE_PATH . '/cache',
+                'auto_reload' => true
+            ]
+        );
+
+        $twig->addExtension(new IntlExtension());
+
         $this->container->set(PaymentGatewayServiceInterface::class, PaymentGatewayService::class);
         $this->container->set(MailerInterface::class, fn() => new CustomMailer($this->config->mailer['dsn']));
+        $this->container->set(Environment::class, fn() => $twig);
 
         return $this;
     }

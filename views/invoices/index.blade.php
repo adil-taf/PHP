@@ -32,17 +32,19 @@
             <th>Invoice #</th>
             <th>Amount</th>
             <th>Status</th>
+            <th>Created at</th>
         </tr>
     </thead>
     <tbody>
-        <?php foreach ($invoices as $invoice) : ?>
-            <tr>
-                <td><?= $invoice->invoice_number ?></td>
-                <td>$<?= number_format($invoice->amount, 2) ?></td>
-                <td class="<?= $invoice->status->color()->getClass() ?>">
-                    <?= $invoice->status->toString() ?>
-                </td>
-            </tr>
-        <?php endforeach ?>
+        @forelse ($invoices as $invoice)
+          <tr>    
+            <td>{{$invoice->invoice_number}}</td>
+            <td>${{number_format($invoice->amount, 2)}}</td>
+            <td class="{{ $invoice->status->color()->getClass() }}">{{ $invoice->status->toString() }}</td>
+            <td>{{$invoice->created_at}}</td>
+          </tr>
+        @empty
+            <tr><td colspan="4">No Invoices Found</td></tr>
+        @endforelse
     </tbody>
 </table>

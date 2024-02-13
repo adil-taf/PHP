@@ -12,6 +12,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Container\Container;
 use Symfony\Component\Mailer\MailerInterface;
+use Jenssegers\Blade\Blade;
 
 class App
 {
@@ -44,8 +45,11 @@ class App
 
         $this->initDb($this->config->db);
 
+        $blade = new Blade(VIEW_PATH, STORAGE_PATH . '/cache');
+
         $this->container->bind(PaymentGatewayServiceInterface::class, PaymentGatewayService::class);
         $this->container->bind(MailerInterface::class, fn() => new CustomMailer($this->config->mailer['dsn']));
+        $this->container->singleton(Blade::class, fn() => $blade);
 
         return $this;
     }

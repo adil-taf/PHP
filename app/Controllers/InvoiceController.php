@@ -9,14 +9,20 @@ use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Attributes\Get;
 use App\View;
+use Jenssegers\Blade\Blade;
 
 class InvoiceController
 {
+    public function __construct(private Blade $blade)
+    {
+    }
+
     #[Get('/invoices')]
-    public function index(): View
+    public function index(): string
     {
         $invoices = Invoice::query()->where('status', InvoiceStatus::Paid)->get();
-        return View::make('invoices/index', ['invoices' => $invoices]);
+
+        return $this->blade->make('invoices/index', ['invoices' => $invoices])->render();
     }
 
     #[Get('/invoices/new')]
